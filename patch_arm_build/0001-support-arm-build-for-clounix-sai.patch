@@ -1,0 +1,76 @@
+From 6c182c92b6a10aa9bf1fd257485d5268c25b6967 Mon Sep 17 00:00:00 2001
+From: Qinghua Song <songqh@clounix.com>
+Date: Wed, 5 Nov 2025 07:30:04 +0000
+Subject: [PATCH] support arm build for clounix-sai
+
+---
+ Makefile         | 6 +++++-
+ config.mk        | 2 +-
+ debian/changelog | 4 ++--
+ debian/control   | 2 +-
+ 4 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index fef4ce68..9b491ae4 100755
+--- a/Makefile
++++ b/Makefile
+@@ -1,4 +1,4 @@
+-################################################################################
++###############################################################################
+ all:     compile install
+ compile: build_folder clx_sdk clx_sai dsh zlog
+ sai:     clx_sai install
+@@ -65,7 +65,11 @@ endif
+ 	cp $(SAI_HEADER_DIR)/experimental/*.h $(SAI_BUILD_OUTPUT)/SAI/
+ 
+ dsh:
++ifeq ($(CONFIGURED_ARCH),arm64)
++	cp -d $(CLX_APP)/shell/bin/arm64/clx_shell $(SAI_BUILD_OUTPUT)
++else
+ 	cp -d $(CLX_APP)/shell/bin/clx_shell $(SAI_BUILD_OUTPUT)
++endif
+ 
+ zlog: install
+ 	cd $(CLX_SAI_LIBS)/ext/zlog && make $(MK_OPTIONS)
+diff --git a/config.mk b/config.mk
+index af7f2b13..ac276e1d 100755
+--- a/config.mk
++++ b/config.mk
+@@ -72,7 +72,7 @@ BOARD_NAME          := DAWN_S9130-32X
+ endif
+ 
+ ################################################################################
+-ARCH                := x86_64
++ARCH                := ARM64
+ CLX_HOST_ENDIAN     := CLX_EN_HOST_64_BIT_LITTLE_ENDIAN
+ CPU_NAME            := x86_d1518
+ CPU_SUB_VER         := 64
+diff --git a/debian/changelog b/debian/changelog
+index 9e9df68b..174afa1f 100755
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,6 +1,6 @@
+-libsaiclx (1.7.1) unstable; urgency=low
++libsaiclx (2.1-1.15.0.CU) unstable; urgency=low
+ 
+-  * sai 1.7.1 release
++  * sai 2.1-1.15.0.CU release
+ 
+  -- Support <lufq@clounix.com>  Tue, 14 Jul 2021 12:54:00 +0800
+ 
+diff --git a/debian/control b/debian/control
+index ebdf1f60..17577acd 100644
+--- a/debian/control
++++ b/debian/control
+@@ -5,7 +5,7 @@ Maintainer: Maintainer <Maintainer@clounix.com>
+ 
+ Package: libsaiclx
+ Section: libs
+-Architecture: amd64
++Architecture: arm64
+ Depends: libc6 (>= 2.17)
+ Provides: libsai
+ Homepage: https://github.com/orgs/clounix/
+-- 
+2.25.1
+

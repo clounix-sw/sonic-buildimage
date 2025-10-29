@@ -442,6 +442,7 @@ RUN apt-get update && apt-get install -y eatmydata && eatmydata apt-get install 
 # For protobuf
         protobuf-compiler \
         libprotobuf-dev \
+        libprotoc-dev \
 # For sonic-dhcp6relay build
         libjsoncpp-dev \
 #for nvidia-bluefield driver compilation
@@ -475,7 +476,6 @@ RUN eatmydata apt-get install -y \
 # For p4 libraries
         libgrpc++-dev \
         libgrpc-dev \
-        libprotoc-dev \
         protobuf-compiler-grpc \
         valgrind \
         python3-protobuf \

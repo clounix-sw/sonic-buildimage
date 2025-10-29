@@ -16,5 +16,8 @@ ifeq ($(ENABLE_SYNCD_RPC),y)
 $(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif
 
+# Force the target bootloader for clounix platforms to grub regardless of arch
+override TARGET_BOOTLOADER = grub
+
 # Runtime dependency on clounix sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(CLOUNIX_SAI)

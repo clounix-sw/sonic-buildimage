@@ -774,6 +774,7 @@ if [[ $TARGET_BOOTLOADER == uboot ]]; then
             sudo LANG=C chroot $FILESYSTEM_ROOT mv /boot/u${INITRD_FILE} /boot/$INITRD_FILE
         else
             sudo cp -v $PLATFORM_DIR/$CONFIGURED_PLATFORM/sonic_fit.its $FILESYSTEM_ROOT/boot/
+            sudo cp -v $PLATFORM_DIR/$CONFIGURED_PLATFORM/*.dtb $FILESYSTEM_ROOT/boot/
             sudo LANG=C chroot $FILESYSTEM_ROOT mkimage -f /boot/sonic_fit.its /boot/sonic_${CONFIGURED_ARCH}.fit
         fi
     fi
