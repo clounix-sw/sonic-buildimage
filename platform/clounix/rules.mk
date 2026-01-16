@@ -1,6 +1,6 @@
-include $(PLATFORM_PATH)/sai.mk
+#include $(PLATFORM_PATH)/sai.mk
 include $(PLATFORM_PATH)/sdk.mk
-include $(PLATFORM_PATH)/clounix-modules.mk
+#include $(PLATFORM_PATH)/clounix-modules.mk
 include $(PLATFORM_PATH)/platform-modules-clounix.mk
 include $(PLATFORM_PATH)/docker-syncd-clounix.mk
 include $(PLATFORM_PATH)/docker-syncd-clounix-rpc.mk
@@ -18,6 +18,9 @@ $(SYNCD)_UNINSTALLS += $(CLOUNIX_SAI_DEV)
 ifeq ($(ENABLE_SYNCD_RPC),y)
 $(SYNCD)_DEPENDS += $(LIBSAITHRIFT_DEV)
 endif
+
+# Force the target bootloader for clounix platforms to grub regardless of arch
+override TARGET_BOOTLOADER = grub
 
 # Runtime dependency on clounix sai is set only for syncd
 $(SYNCD)_RDEPENDS += $(CLOUNIX_SAI)
