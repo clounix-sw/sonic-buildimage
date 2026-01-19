@@ -19,6 +19,19 @@ COPY ["sources.list.{{ CONFIGURED_ARCH }}", "/etc/apt/sources.list"]
 ## Make apt-get non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Pin SNMP stack to deb11u1 to avoid mixed versions
+RUN cat > /etc/apt/preferences.d/libsnmp.pref <<'EOF'
+Package: libsnmp-dev libsnmp40 libnetsnmptrapd40 libsnmp-base
+Pin: version 5.9+dfsg-4+deb11u1
+Pin-Priority: 1001
+EOF
+RUN apt-get update && \
+    apt-get install -y --allow-downgrades \
+        libsnmp-dev=5.9+dfsg-4+deb11u1 \
+        libsnmp40=5.9+dfsg-4+deb11u1 \
+        libnetsnmptrapd40=5.9+dfsg-4+deb11u1 \
+        libsnmp-base=5.9+dfsg-4+deb11u1
+
 RUN apt-get update && apt-get install -y \
         apt-utils \
         default-jre-headless \
@@ -521,7 +534,7 @@ RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 {% if CONFIGURED_ARCH != "amd64" -%}
 # Install node.js for azure pipeline
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get install -y nodejs
 
 # Tell azure pipeline to use node.js in the docker

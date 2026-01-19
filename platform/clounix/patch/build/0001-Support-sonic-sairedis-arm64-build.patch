@@ -1,0 +1,26 @@
+From 77b85dbe80429a954eb1a8f4044bcda2be8c3cd9 Mon Sep 17 00:00:00 2001
+From: Long Wu <wulong@clounix.com>
+Date: Mon, 19 Jan 2026 21:12:05 +0800
+Subject: [PATCH] Support sonic-sairedis arm64 build
+
+---
+ pyext/py3/Makefile.am | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/pyext/py3/Makefile.am b/pyext/py3/Makefile.am
+index 4d93a416..5cb99c9f 100644
+--- a/pyext/py3/Makefile.am
++++ b/pyext/py3/Makefile.am
+@@ -10,7 +10,8 @@ BUILT_SOURCES = pysairedis_wrap.cpp
+ 
+ _pysairedis_la_SOURCES = pysairedis_wrap.cpp $(SOURCES)
+ _pysairedis_la_CXXFLAGS = -I/usr/include/python$(PYTHON3_VERSION) $(AM_CXXFLAGS) $(CXXFLAGS_COMMON) \
+-						  -Wno-cast-qual -Wno-shadow -Wno-redundant-decls -Wno-conversion $(NO_CAST_FUNCTION_TYPE)
++						  -Wno-cast-qual -Wno-shadow -Wno-redundant-decls -Wno-conversion \
++						  -Wno-missing-field-initializers -Wno-error=missing-field-initializers $(NO_CAST_FUNCTION_TYPE)
+ 
+ _pysairedis_la_LDFLAGS = -module \
+ 		-lhiredis -lswsscommon -lpthread \
+-- 
+2.25.1
+
