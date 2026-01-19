@@ -31,7 +31,7 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf net-snmp-$(SNMPD_VERSION)
 
 	# download debian net-snmp
-	dget -u http://archive.debian.org/debian/pool/main/n/net-snmp/net-snmp_$(SNMPD_VERSION_FULL).dsc
+	dget -u https://deb.debian.org/debian-security/pool/updates/main/n/net-snmp/net-snmp_$(SNMPD_VERSION_FULL).dsc
 
 	pushd net-snmp-$(SNMPD_VERSION)
 	git init
