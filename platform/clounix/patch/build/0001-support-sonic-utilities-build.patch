@@ -1,0 +1,52 @@
+From 8019dd51d0d56b95188542e533d210c9a13608b2 Mon Sep 17 00:00:00 2001
+From: Long Wu <wulong@clounix.com>
+Date: Thu, 15 Jan 2026 16:01:20 +0800
+Subject: [PATCH] support sonic-utilities build
+
+---
+ setup.py | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/setup.py b/setup.py
+index 51fe9314..32ac083d 100644
+--- a/setup.py
++++ b/setup.py
+@@ -1,11 +1,9 @@
+ # https://github.com/ninjaaron/fast-entry_points
+-# workaround for slow 'pkg_resources' import
+-#
+-# NOTE: this only has effect on console_scripts and no speed-up for commands
+-# under scripts/. Consider stop using scripts and use console_scripts instead
+-#
+-# https://stackoverflow.com/questions/18787036/difference-between-entry-points-console-scripts-and-scripts-in-setup-py
+-import fastentrypoints
++# Optional: speeds up console_scripts generation; fall back if missing
++try:
++    import fastentrypoints  # type: ignore  # optional helper
++except ImportError:
++    pass
+ 
+ from setuptools import setup
+ 
+@@ -209,7 +207,7 @@ setup(
+         'semantic-version>=2.8.5',
+         'prettyprinter>=0.18.0',
+         'pyroute2>=0.5.14, <0.6.1',
+-        'requests>=2.25.0, <=2.31.0',
++        'requests==2.31.0',
+         'sonic-config-engine',
+         'sonic-platform-common',
+         'sonic-py-common',
+@@ -223,7 +221,8 @@ setup(
+     ],
+     setup_requires= [
+         'pytest-runner',
+-        'wheel'
++        'wheel',
++        'fastentrypoints',
+     ],
+     tests_require = [
+         'pyfakefs',
+-- 
+2.25.1
+
