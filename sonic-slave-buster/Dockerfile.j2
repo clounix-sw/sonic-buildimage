@@ -379,8 +379,27 @@ RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confdef"
 ## do not modify the current configuration file, the new version is installed with a .dpkg-dist suffix
 RUN sudo augtool --autosave "set /files/etc/dpkg/dpkg.cfg/force-confold"
 
-# For linux build
-RUN apt-get -y build-dep linux
+# For linux build: buster archive lacks new kernel-wedge/dwarves
+# Pull required versions from bullseye, keep rest on buster
+RUN set -eux; \
+    echo "deb http://deb.debian.org/debian bullseye main contrib non-free" > /etc/apt/sources.list.d/bullseye.list; \
+    echo "deb-src http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list.d/bullseye.list; \
+    cat > /etc/apt/preferences.d/bullseye-kernel.pref <<'EOF'
+Package: *
+Pin: release n=bullseye
+Pin-Priority: 100
+
+Package: kernel-wedge
+Pin: release n=bullseye
+Pin-Priority: 990
+
+Package: dwarves
+Pin: release n=bullseye
+Pin-Priority: 990
+EOF
+RUN apt-get update
+RUN apt-get -t bullseye install -y kernel-wedge dwarves
+RUN apt-get -t bullseye -y build-dep linux
 
 # For gobgp and telemetry build (use multiple mirrors to avoid 403)
 RUN set -eux; \

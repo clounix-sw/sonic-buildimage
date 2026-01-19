@@ -86,6 +86,8 @@ void lpc_cpld_write_reg(u16 address, u8 reg_val)
 	 
     return;
 }
+EXPORT_SYMBOL(lpc_cpld_read_reg);
+EXPORT_SYMBOL(lpc_cpld_write_reg);
 #endif
 #ifdef CONFIG_ARCH_PHYTIUM
 unsigned char lpc_cpld_read_reg(u32 address)
@@ -117,9 +119,10 @@ void lpc_cpld_write_reg(u32 address, u8 reg_val)
 	  
     return;
 }
-#endif
+
 EXPORT_SYMBOL(lpc_cpld_read_reg);
 EXPORT_SYMBOL(lpc_cpld_write_reg);
+#endif
 
 #ifdef CONFIG_X86
 static int __init pddf_lpc_cpld_init(void)
@@ -171,7 +174,9 @@ static void __exit pddf_lpc_cpld_exit(void)
 {
     release_region(CPLD_LPC_BASE, CPLD_LPC_SIZE);
 }
-#else
+module_init(pddf_lpc_cpld_init);
+module_exit(pddf_lpc_cpld_exit);
+#elif defined(CONFIG_ARCH_PHYTIUM)
 static int cpld_lpc_drv_probe(struct platform_device *pdev)
 {
     uint32_t status = 0;
@@ -279,10 +284,11 @@ static void __exit pddf_lpc_cpld_exit(void)
     platform_driver_unregister(&cpld_lpc_drv);
     platform_device_unregister(&cpld_lpc_dev);
 }
-#endif
+
 module_param(dbg_enable, uint, S_IRUGO|S_IWUSR);
 module_init(pddf_lpc_cpld_init);
 module_exit(pddf_lpc_cpld_exit);
+#endif
 MODULE_AUTHOR("Songqh <songqh@clounix.com>");
 MODULE_DESCRIPTION("clounix_lpc_cpld driver");
 MODULE_LICENSE("GPL");
