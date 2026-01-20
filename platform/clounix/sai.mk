@@ -1,47 +1,40 @@
-SDK_VERSION = 1.11.0
-VENDOR_FEATURE_VERSION=3
-VENDOR_PATCH_VERSION=2304
-VENDOR_REL_TYPE=CU
-# Place here URL where SAI deb exist
-#
-#
-ifeq ($(SAI_DEB_URL),no)
-SAI_SOURCE_PATH=$(PLATFORM_PATH)/clx-sai
-VENDOR_VERSION=$(shell $(SAI_SOURCE_PATH)/version/autogen.sh $(SAI_HEADER_VERSION) $(SAI_SOURCE_PATH))
-SAI_VENDOR_VERSION = $(SAI_HEADER_VERSION).$(VENDOR_VERSION)
+ifeq ($(CONFIGURED_ARCH), amd64)
+TARGET_SAI_ARCH = $(CONFIGURED_ARCH)
 
-CLOUNIX_SAI = libsaiclx_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb
-$(CLOUNIX_SAI)_SRC_PATH = $(PLATFORM_PATH)/clx-sai
-$(CLOUNIX_SAI)_DEPENDS += $(LIBCAREPLUS)
+SAI_HEADER_VERSION = 1.11.0
+SAI_CU = CU
+VENDOR_VERSION = 1-2304
+export SAI_HEADER_VERSION
 
-ifeq ($(INCLUDE_SDK),yes)
-$(CLOUNIX_SAI)_UNINSTALLS += $(CLOUNIX_SDK)
-else
-SONIC_DPKG_DEBS += $(CLOUNIX_SAI)
+SAI_VENDOR_VERSION = $(SAI_HEADER_VERSION).$(VENDOR_VERSION).$(SAI_CU)
+SAI_COMMON_URL_PREFIX = https://github.com/clounix/sai_release/raw/main/sai_available
+
+CLOUNIX_SAI = libsaiclx_$(SAI_VENDOR_VERSION)_$(TARGET_SAI_ARCH).deb
+export clx_sai_deb = $(CLOUNIX_SAI)
+$(CLOUNIX_SAI)_URL = $(SAI_COMMON_URL_PREFIX)/$(CLOUNIX_SAI)
+$(CLOUNIX_SAI)_SKIP_VERSION = y
+
+CLOUNIX_SAI_DEV = libsaiclx-dev_$(SAI_VENDOR_VERSION)_$(TARGET_SAI_ARCH).deb
+export clx_sai_dev_deb = $(CLOUNIX_SAI_DEV)
+$(eval $(call add_derived_package,$(CLOUNIX_SAI),$(CLOUNIX_SAI_DEV)))
+$(eval $(call add_conflict_package,$(CLOUNIX_SAI_DEV),$(LIBSAIVS_DEV)))
+$(CLOUNIX_SAI_DEV)_URL = $(SAI_COMMON_URL_PREFIX)/$(CLOUNIX_SAI_DEV)
+$(CLOUNIX_SAI_DEV)_SKIP_VERSION = y
+
+CLX_SAI_DBG_DEB ?= no
+ifeq ($(CLX_SAI_DBG_DEB), yes)
+CLOUNIX_SAI_DBG = libsaiclx-dbg_$(SAI_VENDOR_VERSION)_$(TARGET_SAI_ARCH).deb
+export clx_sai_dbg_deb = $(CLOUNIX_SAI_DBG)
+$(eval $(call add_derived_package,$(CLOUNIX_SAI),$(CLOUNIX_SAI_DBG)))
+$(CLOUNIX_SAI_DBG)_URL = $(SAI_COMMON_URL_PREFIX)/$(CLOUNIX_SAI_DBG)
+$(CLOUNIX_SAI_DBG)_SKIP_VERSION = y
 endif
-
-CLOUNIX_SAI_DEV = libsaiclx-dev_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb
-$(CLOUNIX_SAI_DEV)_DEPENDS += $(CLOUNIX_SAI)
-
-CLOUNIX_SAI_DBG = libsaiclx-dbg_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb
-$(CLOUNIX_SAI_DBG)_DEPENDS += $(CLOUNIX_SAI)
-else
-VENDOR_VERSION=$(VENDOR_FEATURE_VERSION).$(VENDOR_REL_TYPE)
-SAI_VENDOR_VERSION = $(SAI_HEADER_VERSION).$(VENDOR_VERSION)
-CLOUNIX_SAI = libsaiclx_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb
-$(CLOUNIX_SAI)_URL = "https://github.com/clounix/sai_release/raw/main/sai_available/libsaiclx_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb"
-
-CLOUNIX_SAI_DEV = libsaiclx-dev_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb
-$(CLOUNIX_SAI_DEV)_URL = "https://github.com/clounix/sai_release/raw/main/sai_available/libsaiclx-dev_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb"
-
-CLOUNIX_SAI_DBG = libsaiclx-dbg_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb
-$(CLOUNIX_SAI_DBG)_URL = "https://github.com/clounix/sai_release/raw/main/sai_available/libsaiclx-dbg_$(SAI_VENDOR_VERSION)_$(PLATFORM_ARCH).deb"
 
 SONIC_ONLINE_DEBS += $(CLOUNIX_SAI)
 endif
 
-ifneq ($(INCLUDE_SDK),yes)
-$(eval $(call add_derived_package,$(CLOUNIX_SAI),$(CLOUNIX_SAI_DEV)))
-$(eval $(call add_derived_package,$(CLOUNIX_SAI),$(CLOUNIX_SAI_DBG)))
-$(eval $(call add_conflict_package,$(CLOUNIX_SAI_DEV),$(LIBSAIVS_DEV)))
+ifeq ($(CONFIGURED_ARCH), arm64)
+CLOUNIX_SAI = libsaiclx_2.1-1.11.0+260120.CU_arm64.deb
+$(CLOUNIX_SAI)_PATH = $(PLATFORM_PATH)/
+SONIC_COPY_DEBS += $(CLOUNIX_SAI)
 endif

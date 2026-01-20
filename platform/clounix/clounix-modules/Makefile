@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (C) 2021  Clounix, Inc.
+# Copyright (C) 2024  Clounix, Inc.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 2 of the GNU General Public
@@ -26,24 +26,27 @@ TEST_PATH           := test -d
 
 KVERSION            ?= $(shell uname -r)
 OS_PATH             := /lib/modules/$(KVERSION)/build
-SRC_PATH            := $(KERNEL_MODULE)
-INC_PATH            := $(SRC_PATH)/inc
+KNET_INC_PATH		:= $(KERNEL_MODULE)/linux/include/
+MT_INC_PATH			:= $(KERNEL_MODULE)/linux/include/nb/
+MT_INC_PATH			+= $(KERNEL_MODULE)/linux/include/kg/
 BUILD_OUTPUT_DIR    := $(KERNEL_MODULE)/build
 MODULE_OUTPUT_DIR   := $(BUILD_OUTPUT_DIR)/module
 
 all: compile install
 ################################################################################
-EXTRA_CFLAGS += -I$(INC_PATH)
-EXTRA_CFLAGS += -I$(SRC_PATH)/inc/
+EXTRA_CFLAGS += -I$(KNET_INC_PATH)
+EXTRA_CFLAGS += $(addprefix -I, $(MT_INC_PATH))
 EXTRA_CFLAGS += -DCLX_EN_NETIF
-EXTRA_CFLAGS += -DCLX_EN_DAWN
-EXTRA_CFLAGS += -DCLX_EN_LIGHTNING
-EXTRA_CFLAGS += -DCLX_EN_NAMCHABARWA
 EXTRA_CFLAGS += -DCLX_EN_DEBUG
 EXTRA_CFLAGS += -DCLX_LINUX_USER_MODE
 EXTRA_CFLAGS += -DCLX_EN_LITTLE_ENDIAN
 EXTRA_CFLAGS += -DCLX_EN_COMPILER_SUPPORT_FUNCTION
 EXTRA_CFLAGS += -DCLX_EN_COMPILER_SUPPORT_LONG_LONG
+
+NOUKFEF ?= 1
+ifeq ($(NOUKFEF),0)
+    EXTRA_CFLAGS += -DCLX_KNET_UKFEF
+endif
 
 ifeq ($(shell uname -m),x86_64)
 EXTRA_CFLAGS += -DCLX_EN_HOST_64_BIT_LITTLE_ENDIAN
@@ -57,22 +60,42 @@ EXTRA_CFLAGS += -DCLX_EN_HOST_32_BIT_LITTLE_ENDIAN
 endif
 endif
 
+COMPILE_TIME := $(shell date -u +'%Y-%m-%d_%H:%M:%S-%Z')
+EXTRA_CFLAGS += -DKNET_DEV_MAKE_COMPILE_TIME=\"$(COMPILE_TIME)\"
+DIR_TO_CHECK_FOR_SDK := ../../../.git
+DIR_TO_CHECK_FOR_KNET := .git
+ifneq ($(or $(wildcard $(DIR_TO_CHECK_FOR_SDK)), $(wildcard $(DIR_TO_CHECK_FOR_KNET))),)
+GIT_HASH := $(shell git rev-parse --short HEAD 2> /dev/null)
+EXTRA_CFLAGS += -DKNET_DEV_MAKE_GIT_HASH=\"$(GIT_HASH)\"
+else
+EXTRA_CFLAGS += -DKNET_DEV_RELEASED
+endif
+
 ################################################################################
 DEV_MODULE_NAME            := clx_dev
 
 ################################################################################
-DEV_OBJS_TOTAL             := ./osal_mdc.o
+DEV_OBJS_TOTAL             := linux/src/knet_dev.o
+DEV_OBJS_TOTAL             += linux/src/knet_pci.o
+DEV_OBJS_TOTAL             += linux/src/knet_intr.o
+DEV_OBJS_TOTAL             += linux/src/knet_dma.o
+DEV_OBJS_TOTAL             += linux/src/knet_buffer.o
+DEV_OBJS_TOTAL             += linux/src/knet_drv.o
+DEV_OBJS_TOTAL             += linux/src/knet_netif.o
+DEV_OBJS_TOTAL             += linux/src/knet_netlink.o
+DEV_OBJS_TOTAL             += linux/src/knet_fault_event.o
 
-DEV_OBJS_TOTAL             += ./netif/common/netif_osal.o
-DEV_OBJS_TOTAL             += ./netif/common/netif_perf.o
-DEV_OBJS_TOTAL             += ./netif/common/netif_nl.o
-DEV_OBJS_TOTAL             += ./netif/light/dawn/hal_lt_dawn_pkt_knl.o
-DEV_OBJS_TOTAL             += ./netif/light/lightning/hal_lt_lightning_pkt_knl.o
-DEV_OBJS_TOTAL             += ./netif/mountain/namchabarwa/hal_mt_namchabarwa_pkt_knl.o
+CHIP_OBJS_TOTAL            := linux/src/nb/nb_chip.o
+CHIP_OBJS_TOTAL            += linux/src/nb/nb_drv.o
+CHIP_OBJS_TOTAL            += linux/src/kg/kg_chip.o
+CHIP_OBJS_TOTAL            += linux/src/kg/kg_drv.o
+
 
 obj-m                      := $(DEV_MODULE_NAME).o
 $(DEV_MODULE_NAME)-objs    := $(DEV_OBJS_TOTAL)
+$(DEV_MODULE_NAME)-objs    += $(CHIP_OBJS_TOTAL)
 
+KBUILD_EXTRA_SYMBOLS       := $(BUILD_OUTPUT_DIR)/Module.symvers
 ################################################################################
 folder:
 	$(TEST_PATH) $(BUILD_OUTPUT_DIR) || $(MKDIR) $(BUILD_OUTPUT_DIR)
@@ -80,14 +103,16 @@ folder:
 
 compile:: folder
 	touch $(BUILD_OUTPUT_DIR)/Makefile
-	$(MAKE) -C $(OS_PATH) M=$(BUILD_OUTPUT_DIR) src=$(shell pwd) modules EXTRA_CFLAGS="$(EXTRA_CFLAGS)"
+	touch $(KBUILD_EXTRA_SYMBOLS)
+	$(MAKE) -C $(OS_PATH) M=$(shell pwd) modules EXTRA_CFLAGS="$(EXTRA_CFLAGS)"
 
 install::
 	$(TEST_PATH) $(MODULE_OUTPUT_DIR) || $(MKDIR) $(MODULE_OUTPUT_DIR)
-	$(MV) $(BUILD_OUTPUT_DIR)/$(DEV_MODULE_NAME).ko $(MODULE_OUTPUT_DIR)/$(DEV_MODULE_NAME).ko
+	$(MV) $(shell pwd)/$(DEV_MODULE_NAME).ko $(MODULE_OUTPUT_DIR)/$(DEV_MODULE_NAME).ko
 
 clean::
 	$(RM) $(BUILD_OUTPUT_DIR)
 
 .PHONY: all compile install clean
 .NOTPARALLEL: all compile install clean
+

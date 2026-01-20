@@ -1,11 +1,12 @@
-From c09e164a546ad3dc5845f12d4cdc4f249f1b2fe8 Mon Sep 17 00:00:00 2001
+From b141f41c899486764f9ee3dbd3df57a4569f0de6 Mon Sep 17 00:00:00 2001
 From: Long Wu <wulong@clounix.com>
-Date: Thu, 15 Jan 2026 12:04:02 +0800
-Subject: [PATCH] support sonic-linux-kernel build
+Date: Mon, 26 Jan 2026 13:59:57 +0800
+Subject: [PATCH] Support for sonic linux kernel
 
 ---
- Makefile | 76 ++++++++++++++++++++++++++++----------------------------
- 1 file changed, 38 insertions(+), 38 deletions(-)
+ Makefile                 | 76 ++++++++++++++++++++--------------------
+ patch/kconfig-inclusions | 13 +++++++
+ 2 files changed, 51 insertions(+), 38 deletions(-)
 
 diff --git a/Makefile b/Makefile
 index 4722207..726d396 100644
@@ -128,6 +129,30 @@ index 4722207..726d396 100644
  $(addprefix $(DEST)/, $(DERIVED_TARGETS)): $(DEST)/% : $(DEST)/$(MAIN_TARGET)
 -
 -endif # building kernel
+diff --git a/patch/kconfig-inclusions b/patch/kconfig-inclusions
+index ac6bb7f..21987ab 100644
+--- a/patch/kconfig-inclusions
++++ b/patch/kconfig-inclusions
+@@ -108,6 +108,19 @@ CONFIG_SPI_INTEL_SPI_PLATFORM=m
+ CONFIG_SPI_INTEL_SPI=m
+ 
+ [arm64]
++CONFIG_PMBUS=m
++CONFIG_SENSORS_PMBUS=m
++CONFIG_SENSORS_LTC2978=m
++CONFIG_SENSORS_TPS53679=m
++CONFIG_SENSORS_IIO_HWMON=m
++CONFIG_SENSORS_LM25066=m
++CONFIG_SENSORS_TPS53679=m
++CONFIG_SENSORS_UCD9000=m
++CONFIG_SENSORS_UCD9200=m
++CONFIG_SENSORS_XDPE122=m
++CONFIG_SENSORS_MP2888=m
++CONFIG_SENSORS_MP2975=m
++CONFIG_SENSORS_TMP421=m
+ 
+ [armhf]
+ CONFIG_EEPROM_SFF_8436=m
 -- 
 2.25.1
 
