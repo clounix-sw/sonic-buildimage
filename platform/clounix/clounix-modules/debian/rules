@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+export INSTALL_MOD_DIR:=extra
+
+PACKAGE_NAME := clounix-modules
+# 硬编码内核版本，确保与 debian/control 中的依赖一致
+KVERSION     ?= 5.10.0-23-2-arm64
+KERNEL_SRC   := /lib/modules/$(KVERSION)
+
+# 修改点 1: 源码就在当前目录，不需要 /modules 子目录
+MODULE_SRC   := $(shell pwd)
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# 修改点 2: 直接在当前目录调用 make，并传递 KVERSION
+	$(MAKE) KVERSION=$(KVERSION)
+
+override_dh_auto_install:
+	# 安装 Systemd 服务文件 (如果你有 service 目录的话)
+	if [ -d $(MODULE_SRC)/service ]; then \
+		dh_installdirs -p$(PACKAGE_NAME) /lib/systemd/system; \
+		cp $(MODULE_SRC)/service/*.service debian/$(PACKAGE_NAME)/lib/systemd/system/; \
+	fi
+
+	# 安装 Init.d 脚本 (如果你有 init.d 目录的话)
+	if [ -d $(MODULE_SRC)/init.d ]; then \
+		dh_installdirs -p$(PACKAGE_NAME) /etc/init.d; \
+		cp $(MODULE_SRC)/init.d/* debian/$(PACKAGE_NAME)/etc/init.d/; \
+	fi
+
+	# 安装内核模块
+	dh_installdirs -p$(PACKAGE_NAME) $(KERNEL_SRC)/extra/
+	cp $(MODULE_SRC)/build/module/*.ko debian/$(PACKAGE_NAME)/$(KERNEL_SRC)/$(INSTALL_MOD_DIR)/
+
+override_dh_usrlocal:
+
+override_dh_pysupport:
+
+override_dh_clean:
+	dh_clean
+	test -d $(MODULE_SRC)/build || rm -rf $(MODULE_SRC)/build
