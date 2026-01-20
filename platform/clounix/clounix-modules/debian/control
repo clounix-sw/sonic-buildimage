@@ -1,0 +1,12 @@
+Source: clounix-modules
+Section: kernel
+Priority: optional
+Maintainer: support <zhoujd@clounix.com>
+Build-Depends: debhelper (>= 9), linux-headers-5.10.0-23-2-arm64
+Standards-Version: 3.9.8
+
+Package: clounix-modules
+Architecture: any
+Depends: ${misc:Depends}
+Description: Kernel modules for Clounix platform
+ This package contains the clx_dev kernel module for SONiC
