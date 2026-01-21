@@ -31,7 +31,11 @@ $(addprefix $(DEST)/, $(MAIN_TARGET)): $(DEST)/% :
 	rm -rf net-snmp-$(SNMPD_VERSION)
 
 	# download debian net-snmp
+ifneq (,$(findstring deb11u3,$(SNMPD_VERSION_FULL)))
 	dget -u https://deb.debian.org/debian-security/pool/updates/main/n/net-snmp/net-snmp_$(SNMPD_VERSION_FULL).dsc
+else
+	dget -u http://archive.debian.org/debian/pool/main/n/net-snmp/net-snmp_$(SNMPD_VERSION_FULL).dsc
+endif
 
 	pushd net-snmp-$(SNMPD_VERSION)
 	git init
