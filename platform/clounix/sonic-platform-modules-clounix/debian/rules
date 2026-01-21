@@ -116,7 +116,7 @@ binary-indep:
 		cp $(MOD_SRC_DIR)/common/$(SERVICE_DIR)/platform_api_mgnt.sh debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/local/bin/; \
 	done) 
 	# pit
-	dh_installdirs -p$(PACKAGE_PRE_NAME)-pit-sysdiag /usr/local; \
+#	dh_installdirs -p$(PACKAGE_PRE_NAME)-pit-sysdiag /usr/local; \
 	dh_installdirs -p$(PACKAGE_PRE_NAME)-pit-sysdiag /usr/bin; \
 	cp $(MOD_SRC_DIR)/pit-sysdiag/pit debian/$(PACKAGE_PRE_NAME)-pit-sysdiag/usr/local/ -rf; \
 	cp -r $(MOD_SRC_DIR)/pit-sysdiag/sysdiag debian/$(PACKAGE_PRE_NAME)-pit-sysdiag/usr/bin/;
