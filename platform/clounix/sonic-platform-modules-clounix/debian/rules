@@ -20,7 +20,7 @@ KVERSION   ?= $(shell uname -r)
 KERNEL_SRC := /lib/modules/$(KVERSION)
 export KERNEL_SRC
 MOD_SRC_DIR:= $(shell pwd)
-MODULE_DIRS:=  clx12800-48d8e clx25600-48d8e 
+MODULE_DIRS:=  clx12800-48d8e clx25600-48d8e clx2000-48y8c 
 MODULE_DIR := modules
 UTILS_DIR := utils
 SERVICE_DIR := service
@@ -104,6 +104,11 @@ binary-indep:
 				cp $(MOD_SRC_DIR)/common/fpga_utils/fpga debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/share/sonic/device/x86_64-clounix_clx25600_48d8e-r$${dev}/clx_fpga; \
 	                done) \
 		fi; \
+		if [ $${mod} = "clx2000-48y8c" ]; then \
+                dh_installdirs -p$(PACKAGE_PRE_NAME)-$${mod} /usr/share/sonic/device/x86_64-clounix_clx2000_48y8c-r0/pddf; \
+                cp $(MOD_SRC_DIR)/common/$(UTILS_DIR)/*.whl debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/share/sonic/device/x86_64-clounix_clx2000_48y8c-r0/pddf/; \
+                cp $(MOD_SRC_DIR)/common/fpga_utils/fpga debian/$(PACKAGE_PRE_NAME)-$${mod}/usr/share/sonic/device/x86_64-clounix_clx2000_48y8c-r0/clx_fpga; \
+        fi; \
 		#if [ $$CONFIGURED_ARCH = "amd64" ]; then \
 		#	cd $(MOD_SRC_DIR)/common/$(BIOS_DIR); \
 		#	./afulnx_64 /GENDRV KERNEL=$(KERNEL_SRC)/build .;\

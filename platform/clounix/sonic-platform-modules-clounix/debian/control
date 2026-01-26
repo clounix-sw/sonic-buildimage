@@ -14,7 +14,6 @@ Package: sonic-platform-clounix-clx25600-48d8e
 Architecture: any
 Description: kernel modules for platform devices such as fan, led, sfp
 
-
-Package: sonic-platform-clounix-pit-sysdiag
+Package: sonic-platform-clounix-clx2000-48y8c
 Architecture: any
-Description: Platform Integration Test System, dedicated to be used in switch system
+Description: kernel modules for platform devices such as fan, led, sfp
